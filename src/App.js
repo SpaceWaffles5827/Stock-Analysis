@@ -11,89 +11,75 @@ var marketClose = new Date();
 marketClose.setHours(16,0,0); //4:00 pm
 
 function App() {
+  const [rawStockData,setRawStockData] = useState([{}])
   const [stockData,setStockData] = useState([{}])
   const [openStockMarketData,setOpenMarketStockData] = useState([{}])
 
   useEffect(() => {
-    getData()
+    setRawData()
   }, []);
 
-  function getData(){
-    var time123 = new Date();
-    var newDictonary = []
-    var newStockData = []
-    var newStockData
-    var timeArr 
-    (axios.get('https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY_EXTENDED&symbol=IBM&interval=15min&slice=year1month1&apikey=demo')
-    .then(function (response) {
-    var dataString = response.data
-    var row = dataString.split(/\r?\n/);
-    row.map((info) => newStockData.push(info.split(',')))
-    newStockData.shift()
-    newStockData.pop()
-    newStockData.map((info)=> {
-      info [0] = info[0].replace(' ','-')
-      info[0] = info[0].split('-')
-      timeArr = (info[0][3].split(':'))
-      time123.setHours(timeArr[0],timeArr[1],timeArr[2])
-      newDictonary.push({
-        time: {hour:timeArr[0], min:timeArr[1], sec:timeArr[2]},
-        year: info[0][0],
-        month: info[0][1],
-        day: info[0][2],
-        open: info[1],
-        high: info[2],
-        low: info[3],
-        close: info[4],
-        volume: info[5],
-        afterHours: isAfterHours(time123),
-      })
-    })
+  useEffect(() => {
+    setFormatedDataAll()
+    
+  }, [rawStockData]);
 
-    ///////////////////////// New New ///////////////////////
+  function setFormatedDataAll(){
+    if(rawStockData.length>1){
+      var curentDay = 0
+      var dayDataPointsArr
+      var dayDataPointsArrArr = []
+      for(let i = 0; i < rawStockData.length; i++){
+        if(i>1){
+          var prePoint = (rawStockData[i-1])
+          var yesterdayYear = (prePoint.time.split(' ')[0].split('-')[0])
+          var yesterdayMonth = (prePoint.time.split(' ')[0].split('-')[1])
+          var yesterdayday = (prePoint.time.split(' ')[0].split('-')[2])
+          
+          var curentPoint = (rawStockData[i])
+          var todayYear = (curentPoint.time.split(' ')[0].split('-')[0])
+          var todayMonth = (curentPoint.time.split(' ')[0].split('-')[1])
+          var todayday = (curentPoint.time.split(' ')[0].split('-')[2])
 
-    var DatArray = [[{day: 0}]]
-    var newData = []
-
-    for(var i = 0; newDictonary.length > i; i++){
-      if(DatArray[0].day!=newDictonary[i].day){
-        DatArray = [newDictonary[i]]
-        newData.push({date: {month: newDictonary[i].month, day: newDictonary[i].day}, data: DatArray})
-      }
-      else{
-        DatArray.push(newDictonary[i])
-      }
-    }
-    newData.pop()
-    setStockData(newData)
-
-    var NewNewDic = []
-
-    for(var i = 0; i < newData.length; i++){
-      for(var x = 0; x < newData[i].data.length; x++){
-        if(newData[i].data[x].afterHours==false){
-          NewNewDic.push(newData[i].data[x])
+          if(curentDay!=todayday){
+            curentDay=todayday
+            dayDataPointsArrArr.push(dayDataPointsArr)
+            dayDataPointsArr = [curentPoint]
+            // dayDataPointsArr=(daydataPoint)
+            
+          } 
+          else{
+            dayDataPointsArr.push(curentPoint)
+          }
         }
       }
+      console.log(dayDataPointsArrArr)
     }
+    
 
-    // console.log(NewNewDic)
+    
 
-    DatArray = [[{day: 0}]]
-    newData = []
+      
+  }
 
-    for(var i = 0; NewNewDic.length > i; i++){
-      if(DatArray[0].day!=NewNewDic[i].day){
-        console.log(DatArray)
-        DatArray = [NewNewDic[i]]
-      }
-      else{
-        DatArray.push(NewNewDic[i])
-      }
-    }
-
-    // console.log(DatArray)
-
+  function setRawData(){
+    (axios.get('https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY_EXTENDED&symbol=IBM&interval=15min&slice=year1month1&apikey=demo')
+    .then(function (response) {
+      var dataRows = response.data.split(/\r?\n/);
+      var dataRowArr = []
+      dataRows.map((dataRow)=> { 
+          dataRow = dataRow.split(',')
+          if(dataRow[4]>=0){
+          dataRowArr.push({
+            time: dataRow[0],
+            open: dataRow[1],
+            high: dataRow[2],
+            low: dataRow[3],
+            close: dataRow[4],
+            volume: dataRow[5]})
+        }
+      })
+      setRawStockData(dataRowArr)
   }))
   }
 
@@ -119,10 +105,7 @@ function App() {
 
   return (
     <div className="App">
-      {/* <DataPoint stockData={stockData}></DataPoint> */}
-      {/* {console.log(getPercentDayGain(0))} */}
-      {/* {console.log(stockData)} */}
-      {/* {console.log(openStockMarketData)} */}
+      {/* {console.log(rawStockData)} */}
     </div>
   );
 }
