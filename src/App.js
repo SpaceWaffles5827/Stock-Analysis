@@ -25,35 +25,35 @@ function App() {
   }, [rawStockData]);
 
   function setFormatedDataAll(){
-    if(rawStockData.length>1){
+    var newRawStockData = rawStockData
+    newRawStockData.push({time: '2022-06-01 14:15:00', open: '139.31', high: '139.64', low: '139.29', close: '139.53',})
+    if(newRawStockData.length>1){
       var curentDay = 0
       var dayDataPointsArr
       var dayDataPointsArrArr = []
-      for(let i = 0; i < rawStockData.length; i++){
+      for(let i = 0; i < newRawStockData.length; i++){
         if(i>1){
-          var prePoint = (rawStockData[i-1])
+          var prePoint = (newRawStockData[i-1])
           var yesterdayYear = (prePoint.time.split(' ')[0].split('-')[0])
           var yesterdayMonth = (prePoint.time.split(' ')[0].split('-')[1])
           var yesterdayday = (prePoint.time.split(' ')[0].split('-')[2])
           
-          var curentPoint = (rawStockData[i])
+          var curentPoint = (newRawStockData[i])
           var todayYear = (curentPoint.time.split(' ')[0].split('-')[0])
           var todayMonth = (curentPoint.time.split(' ')[0].split('-')[1])
           var todayday = (curentPoint.time.split(' ')[0].split('-')[2])
 
           if(curentDay!=todayday){
             curentDay=todayday
-            dayDataPointsArrArr.push(dayDataPointsArr)
+            if(dayDataPointsArr!=undefined){dayDataPointsArrArr.push({time: {month: yesterdayMonth, day: yesterdayday, year: yesterdayYear}, data: dayDataPointsArr})} 
             dayDataPointsArr = [curentPoint]
-            // dayDataPointsArr=(daydataPoint)
-            
           } 
           else{
             dayDataPointsArr.push(curentPoint)
           }
         }
       }
-      console.log(dayDataPointsArrArr)
+      setStockData(dayDataPointsArrArr)
     }
     
 
@@ -106,6 +106,7 @@ function App() {
   return (
     <div className="App">
       {/* {console.log(rawStockData)} */}
+      {console.log(stockData)}
     </div>
   );
 }
