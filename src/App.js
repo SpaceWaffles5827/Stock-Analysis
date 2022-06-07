@@ -5,7 +5,6 @@ import DataPoint from "./DataPoint";
 import TestChart from "./TestChart";
 
 
-
 const d = new Date();
 
 function App() {
@@ -27,8 +26,6 @@ function App() {
     if(rawStockData.length>1){
       var marketOpen = new Date();
       var marketClose = new Date();
-
-      var increament = 1 
 
       var newArr
       var finalArr = [{}]
@@ -52,9 +49,8 @@ function App() {
         marketClose.setMonth(month-1)
         marketClose.setFullYear(year)
         marketClose.setDate(day)
-        
 
-        if(previousDay!=day || i<=increament || i+1 == rawStockData.length){   
+        if(previousDay!=day || i<=1 || i+1 == rawStockData.length){   
           if(newArr!=undefined){
             newArr.shift()
             finalArr.push({time: {month: parseInt(month), day: parseInt(previousDay)}, data: newArr})
@@ -68,8 +64,7 @@ function App() {
         }
       }
       finalArr.shift()
-      console.log(finalArr)
-      // setOpenMarketStockData(finalArr)
+      setOpenMarketStockData(finalArr)
     }
   }
 
@@ -125,15 +120,18 @@ function App() {
   }))
   }
 
-
   function getPercentDayGain(index){
-    if(stockData[index].data!=undefined){
-      for(var i = 0; stockData[index].data.length > i; i++){
-        console.log(stockData[index].data[i].time.hour + " : " + stockData[index].data[i].time.min  +" : " + stockData[index].data[i].time.sec )  
-      }
+    if(openStockMarketData.length>1){
+      console.log(openStockMarketData[1].data[0])
+      var yesterdaysLastDataPoint = openStockMarketData[index+1].data[0]
+      var lastOpenDataPoint = openStockMarketData[index].data[0]
+      var firstOpenDataPoint = openStockMarketData[index].data[openStockMarketData[index].data.length-1]
+      return(((lastOpenDataPoint.close-yesterdaysLastDataPoint.close)/yesterdaysLastDataPoint.close)*100)
+    }
+    else{
+      return null
     }
   }
-
 
   function isAfterHours(time,marketOpen,marketClose){
     if(time>=marketOpen && time <=marketClose){
@@ -144,11 +142,9 @@ function App() {
     }
   }
 
-
   return (
     <div className="App">
-      {/* {console.log(stockData)} */}
-      {/* {console.log(rawStockData)} */}
+      {console.log(getPercentDayGain(0))}
     </div>
   );
 }
