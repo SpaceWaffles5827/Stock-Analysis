@@ -4,11 +4,7 @@ import React, { useState,useEffect } from 'react';
 import DataPoint from "./DataPoint";
 import TestChart from "./TestChart";
 
-var marketOpen = new Date();
-marketOpen.setHours(9,29,0); //9:30 am
 
-var marketClose = new Date();
-marketClose.setHours(16,0,0); //4:00 pm
 
 const d = new Date();
 
@@ -23,53 +19,58 @@ function App() {
 
   useEffect(() => {
     setFormatedDataAll()
-    // setFormatedDataOpenHours()
+    setFormatedDataOpenHours()
   }, [rawStockData]);
 
 
   function setFormatedDataOpenHours(){
-    var newRawStockData = rawStockData
-    if(newRawStockData.length>1){
-      var curentDay = 0
-      var dayDataPointsArr
-      var dayDataPointsArrArr = []
-      for(let i = 0; i < newRawStockData.length; i++){
-        if(i>1){
-          var prePoint = (newRawStockData[i-1])
-          var yesterdayYear = (prePoint.time.split(' ')[0].split('-')[0])
-          var yesterdayMonth = (prePoint.time.split(' ')[0].split('-')[1])
-          var yesterdayday = (prePoint.time.split(' ')[0].split('-')[2])
-          
+    if(rawStockData.length>1){
+      var marketOpen = new Date();
+      var marketClose = new Date();
 
-          var curentPoint = (newRawStockData[i])
-          var todayYear = (curentPoint.time.split(' ')[0].split('-')[0])
-          var todayMonth = (curentPoint.time.split(' ')[0].split('-')[1])
-          var todayday = (curentPoint.time.split(' ')[0].split('-')[2])
+      var increament = 1 
 
-          var curentHour = curentPoint.time.split(' ')[1].split(':')[0]
-          var curentMin = curentPoint.time.split(' ')[1].split(':')[1]
-          var curentSec = curentPoint.time.split(' ')[1].split(':')[2]
+      var newArr
+      var finalArr = [{}]
+      for(var i = 1; i<rawStockData.length; i++){
+        var previousDay = rawStockData[i-1].time.split(' ')[0].split('-')[2]
+        var day = rawStockData[i].time.split(' ')[0].split('-')[2]
+        var month = rawStockData[i].time.split(' ')[0].split('-')[1]
+        var year = rawStockData[i].time.split(' ')[0].split('-')[0]
+        var hour = (rawStockData[i].time.split(' ')[1].split(':')[0])
+        var min = (rawStockData[i].time.split(' ')[1].split(':')[1])
+        var sec = (rawStockData[i].time.split(' ')[1].split(':')[2])
+        var d = new Date(year, month-1, day, hour, min);
 
-          var d = new Date();
-          d.setHours(curentHour,curentMin,0)
+        marketOpen.setHours(9,29,0); //9:30 am
+        marketClose.setHours(16,0,0); //4:00 pm
 
-          console.log(newRawStockData[i])
+        marketOpen.setMonth(month-1)
+        marketOpen.setFullYear(year)
+        marketOpen.setDate(day)
+        
+        marketClose.setMonth(month-1)
+        marketClose.setFullYear(year)
+        marketClose.setDate(day)
+        
 
-          // console.log(todayMonth+"-"+todayday)
-          // console.log(curentHour + ":"+ curentMin +":"+ curentSec)
-          // console.log(d)
-
+        if(previousDay!=day || i<=increament || i+1 == rawStockData.length){   
+          if(newArr!=undefined){
+            newArr.shift()
+            finalArr.push({time: {month: parseInt(month), day: parseInt(previousDay)}, data: newArr})
+          }
+          newArr=[rawStockData[i]]
+        }
+        else{
+          if(!isAfterHours(d,marketOpen,marketClose)){
+            newArr.push(rawStockData[i])
+          }
         }
       }
+      finalArr.shift()
+      console.log(finalArr)
+      // setOpenMarketStockData(finalArr)
     }
-  
-
-
-    // setOpenMarketStockData({test: "tset"})
-  }
-
-  function isOpen(time){
-    return true
   }
 
   function setFormatedDataAll(){
@@ -85,9 +86,9 @@ function App() {
         var min = (rawStockData[i].time.split(' ')[1].split(':')[1])
         var sec = (rawStockData[i].time.split(' ')[1].split(':')[2])
         var d = new Date(year, month-1, day, hour, min);
-        marketOpen.setMonth(month-1)
-        marketOpen.setFullYear(year)
-        marketOpen.setDate(day)
+        // marketOpen.setMonth(month-1)
+        // marketOpen.setFullYear(year)
+        // marketOpen.setDate(day)
         if(previousDay!=day || i<=1 || i+1 == rawStockData.length){   
           if(newArr!=undefined){
             finalArr.push({time: {month: parseInt(month), day: parseInt(previousDay)}, data: newArr})
@@ -99,7 +100,7 @@ function App() {
         }
       }
       finalArr.shift()
-      console.log(finalArr)
+      setStockData(finalArr)
     }
   }
 
@@ -120,7 +121,7 @@ function App() {
             volume: dataRow[5]})
         }
       })
-      setStockData(dataRowArr)
+      setRawStockData(dataRowArr)
   }))
   }
 
@@ -134,7 +135,7 @@ function App() {
   }
 
 
-  function isAfterHours(time){
+  function isAfterHours(time,marketOpen,marketClose){
     if(time>=marketOpen && time <=marketClose){
       return false
     }
@@ -146,7 +147,7 @@ function App() {
 
   return (
     <div className="App">
-      {console.log(stockData)}
+      {/* {console.log(stockData)} */}
       {/* {console.log(rawStockData)} */}
     </div>
   );
