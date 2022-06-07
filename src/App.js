@@ -5,10 +5,12 @@ import DataPoint from "./DataPoint";
 import TestChart from "./TestChart";
 
 var marketOpen = new Date();
-marketOpen.setHours(9,30,0); //9:30 am
+marketOpen.setHours(9,29,0); //9:30 am
 
 var marketClose = new Date();
 marketClose.setHours(16,0,0); //4:00 pm
+
+const d = new Date();
 
 function App() {
   const [rawStockData,setRawStockData] = useState([{}])
@@ -21,12 +23,12 @@ function App() {
 
   useEffect(() => {
     setFormatedDataAll()
-    
+    // setFormatedDataOpenHours()
   }, [rawStockData]);
 
-  function setFormatedDataAll(){
+
+  function setFormatedDataOpenHours(){
     var newRawStockData = rawStockData
-    newRawStockData.push({time: '2022-06-01 14:15:00', open: '139.31', high: '139.64', low: '139.29', close: '139.53',})
     if(newRawStockData.length>1){
       var curentDay = 0
       var dayDataPointsArr
@@ -38,28 +40,66 @@ function App() {
           var yesterdayMonth = (prePoint.time.split(' ')[0].split('-')[1])
           var yesterdayday = (prePoint.time.split(' ')[0].split('-')[2])
           
+
           var curentPoint = (newRawStockData[i])
           var todayYear = (curentPoint.time.split(' ')[0].split('-')[0])
           var todayMonth = (curentPoint.time.split(' ')[0].split('-')[1])
           var todayday = (curentPoint.time.split(' ')[0].split('-')[2])
 
-          if(curentDay!=todayday){
-            curentDay=todayday
-            if(dayDataPointsArr!=undefined){dayDataPointsArrArr.push({time: {month: yesterdayMonth, day: yesterdayday, year: yesterdayYear}, data: dayDataPointsArr})} 
-            dayDataPointsArr = [curentPoint]
-          } 
-          else{
-            dayDataPointsArr.push(curentPoint)
-          }
+          var curentHour = curentPoint.time.split(' ')[1].split(':')[0]
+          var curentMin = curentPoint.time.split(' ')[1].split(':')[1]
+          var curentSec = curentPoint.time.split(' ')[1].split(':')[2]
+
+          var d = new Date();
+          d.setHours(curentHour,curentMin,0)
+
+          console.log(newRawStockData[i])
+
+          // console.log(todayMonth+"-"+todayday)
+          // console.log(curentHour + ":"+ curentMin +":"+ curentSec)
+          // console.log(d)
+
         }
       }
-      setStockData(dayDataPointsArrArr)
+    }
+  
+
+
+    // setOpenMarketStockData({test: "tset"})
+  }
+
+  function isOpen(time){
+    return true
+  }
+
+  function setFormatedDataAll(){
+    if(rawStockData.length>1){
+      var newArr
+      for(var i = 1; i<rawStockData.length; i++){
+        var previousDay = rawStockData[i-1].time.split(' ')[0].split('-')[2]
+
+        var day = rawStockData[i].time.split(' ')[0].split('-')[2]
+        var month = rawStockData[i].time.split(' ')[0].split('-')[1]
+        var year = rawStockData[i].time.split(' ')[0].split('-')[0]
+        var hour = (rawStockData[i].time.split(' ')[1].split(':')[0])
+        var min = (rawStockData[i].time.split(' ')[1].split(':')[1])
+        var sec = (rawStockData[i].time.split(' ')[1].split(':')[2])
+        var d = new Date(year, month-1, day, hour, min);
+        marketOpen.setMonth(month-1)
+        marketOpen.setFullYear(year)
+        marketOpen.setDate(day)
+
+
+        if(previousDay!=day){
+          
+        }
+        else{
+
+        }
+      }
     }
     
-
     
-
-      
   }
 
   function setRawData(){
@@ -106,7 +146,7 @@ function App() {
   return (
     <div className="App">
       {/* {console.log(rawStockData)} */}
-      {console.log(stockData)}
+      {/* {console.log(rawStockData)} */}
     </div>
   );
 }
