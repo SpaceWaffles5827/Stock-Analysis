@@ -75,9 +75,9 @@ function App() {
   function setFormatedDataAll(){
     if(rawStockData.length>1){
       var newArr
+      var finalArr = [{}]
       for(var i = 1; i<rawStockData.length; i++){
         var previousDay = rawStockData[i-1].time.split(' ')[0].split('-')[2]
-
         var day = rawStockData[i].time.split(' ')[0].split('-')[2]
         var month = rawStockData[i].time.split(' ')[0].split('-')[1]
         var year = rawStockData[i].time.split(' ')[0].split('-')[0]
@@ -88,18 +88,19 @@ function App() {
         marketOpen.setMonth(month-1)
         marketOpen.setFullYear(year)
         marketOpen.setDate(day)
-
-
-        if(previousDay!=day){
-          
+        if(previousDay!=day || i<=1 || i+1 == rawStockData.length){   
+          if(newArr!=undefined){
+            finalArr.push({time: {month: parseInt(month), day: parseInt(previousDay)}, data: newArr})
+        }     
+          newArr=[rawStockData[i]]  
         }
         else{
-
+          newArr.push(rawStockData[i])
         }
       }
+      finalArr.shift()
+      console.log(finalArr)
     }
-    
-    
   }
 
   function setRawData(){
@@ -119,7 +120,7 @@ function App() {
             volume: dataRow[5]})
         }
       })
-      setRawStockData(dataRowArr)
+      setStockData(dataRowArr)
   }))
   }
 
@@ -145,7 +146,7 @@ function App() {
 
   return (
     <div className="App">
-      {/* {console.log(rawStockData)} */}
+      {console.log(stockData)}
       {/* {console.log(rawStockData)} */}
     </div>
   );
